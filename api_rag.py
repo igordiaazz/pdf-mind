@@ -1,4 +1,5 @@
 from fastapi import FastAPI, UploadFile, File, Form
+from fastapi.middleware.cors import CORSMiddleware
 import pdfplumber
 import torch
 from transformers import AutoTokenizer, AutoModelForQuestionAnswering
@@ -8,6 +9,15 @@ app = FastAPI(
     title="PDF READER (RAG API)",
     description="API that reads a PDF and answer questions using AI.",
     version="1.0"
+)
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 

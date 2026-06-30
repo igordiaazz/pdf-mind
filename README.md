@@ -1,181 +1,102 @@
-# 🧠 BrainRAG — PDF Question Answering with BERT
+# PDF Mind - PDF Question Answering with BERT
 
-A lightweight Retrieval-Augmented Generation (RAG) system that lets you ask questions about any PDF document using a Portuguese-language BERT model. Available both as a **REST API** (FastAPI) and a **command-line interface**.
-
----
-
-## 📋 Table of Contents
-
-- [Overview](#overview)
-- [Features](#features)
-- [Project Structure](#project-structure)
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [Usage](#usage)
-  - [CLI Mode](#cli-mode)
-  - [API Mode](#api-mode)
-- [API Reference](#api-reference)
-- [Model](#model)
-- [Limitations](#limitations)
-- [License](#license)
-
----
-
-## Overview
-
-BrainRAG extracts text from PDF files and uses a fine-tuned BERT model (`bert-base-cased-squad-v1.1-portuguese`) to answer natural language questions based on the document's content. It is designed for Portuguese-language documents but can be adapted for other languages.
-
----
-
-## Features
-
-- 📄 PDF text extraction with `pdfplumber`
-- 🤖 Question answering powered by HuggingFace Transformers (BERT)
-- 🌐 REST API built with FastAPI
-- 💻 Interactive CLI for local use
-- ⚡ GPU-accelerated inference via PyTorch (when available)
-
----
+A Retrieval-Augmented Generation (RAG) system with a modern web interface. Ask questions about any PDF document using a Portuguese-language BERT model.
 
 ## Project Structure
 
 ```
-brainRAG/
-├── api_rag.py          # FastAPI REST API
-├── brainRAG.py         # Interactive CLI
-├── pdfReader.py        # Standalone PDF text extractor utility
-├── requirements.txt    # Python dependencies
-└── doc.pdf             # Sample PDF for testing
+pdf-mind/
+├── api_rag.py                  # FastAPI REST API (backend Python)
+├── brainRAG.py                 # Interactive CLI
+├── pdfReader.py                # Standalone PDF text extractor
+├── requirements.txt            # Python dependencies
+├── doc.pdf                     # Sample PDF
+├── docker-compose.yml          # PostgreSQL + services
+├── .env.example
+├── frontend/                   # Next.js web app
+│   ├── src/
+│   │   ├── app/
+│   │   │   ├── page.tsx        # Home - upload PDF + perguntar
+│   │   │   ├── layout.tsx      # Root layout com Header
+│   │   │   ├── history/        # Histórico de perguntas
+│   │   │   └── api/
+│   │   │       ├── ask/        # Proxy para API Python
+│   │   │       └── history/    # CRUD histórico (PostgreSQL)
+│   │   ├── components/
+│   │   │   ├── Header.tsx
+│   │   │   ├── FileUpload.tsx
+│   │   │   ├── QuestionForm.tsx
+│   │   │   └── HistoryList.tsx
+│   │   └── lib/
+│   │       ├── prisma.ts
+│   │       └── types.ts
+│   ├── prisma/schema.prisma    # Modelo PostgreSQL
+│   ├── package.json
+│   └── next.config.ts
+└── README.md
 ```
 
----
+## Tech Stack
 
-## Requirements
+- **Backend**: Python (FastAPI, HuggingFace BERT, pdfplumber)
+- **Frontend**: Next.js + TypeScript + Tailwind CSS
+- **Database**: PostgreSQL (via Prisma ORM)
+- **Infra**: Docker Compose
 
-- Python 3.9+
-- pip
+## Quick Start
 
-> GPU support is optional but recommended for faster inference.
-
----
-
-## Installation
-
-**1. Clone the repository**
-
-```bash
-git clone https://github.com/your-username/brainRAG.git
-cd brainRAG
-```
-
-**2. Create and activate a virtual environment** *(recommended)*
+### 1. Backend Python
 
 ```bash
 python -m venv venv
-source venv/bin/activate        # Linux/macOS
-venv\Scripts\activate           # Windows
-```
-
-**3. Install dependencies**
-
-```bash
+source venv/bin/activate
 pip install -r requirements.txt
-```
-
-> ⚠️ The first run will download the BERT model (~400 MB) from HuggingFace Hub automatically.
-
----
-
-## Usage
-
-### CLI Mode
-
-Ask questions interactively about a local PDF file.
-
-1. Place your PDF in the project root and update the filename in `brainRAG.py`:
-
-```python
-arqPDF = "your_document.pdf"
-```
-
-2. Run:
-
-```bash
-python brainRAG.py
-```
-
-3. Type your question when prompted:
-
-```
-What is your question?: Who founded the company?
-AI: 'Steve Jobs, Steve Wozniak and Ronald Wayne'
-```
-
-Type `exit` to quit.
-
----
-
-### API Mode
-
-Start the FastAPI server:
-
-```bash
 uvicorn api_rag:app --reload
 ```
 
-The API will be available at `http://127.0.0.1:8000`.
+### 2. Database (PostgreSQL)
 
-Interactive documentation (Swagger UI): `http://127.0.0.1:8000/docs`
+```bash
+# Com Docker:
+docker compose up -d postgres
 
----
+# Ou use uma instância PostgreSQL local existente
+```
 
-## API Reference
+### 3. Frontend
+
+```bash
+cd frontend
+cp ../.env.example .env
+npm install
+npx prisma db push
+npm run dev
+```
+
+Acesse `http://localhost:3000`.
+
+### 4. Tudo junto (Docker)
+
+```bash
+docker compose up --build
+```
+
+## API (Python)
 
 ### `POST /perguntar`
 
-Accepts a PDF file and a question, returns the AI-generated answer.
-
-**Request** — `multipart/form-data`
-
-| Field      | Type   | Description                          |
-|------------|--------|--------------------------------------|
-| `question` | string | The question to ask about the PDF    |
-| `file`     | file   | The PDF file to be analyzed          |
-
-**Response** — `application/json`
-
-```json
-{
-  "your_file": "document.pdf",
-  "your_question": "Who founded the company?",
-  "ai_response": "Steve Jobs, Steve Wozniak and Ronald Wayne"
-}
-```
-
-**Example with `curl`**
+Upload de PDF + pergunta, retorna resposta da IA.
 
 ```bash
-curl -X POST "http://127.0.0.1:8000/perguntar" \
-  -F "question=Who founded the company?" \
+curl -X POST "http://localhost:8000/perguntar" \
+  -F "question=Quem fundou a empresa?" \
   -F "file=@doc.pdf"
 ```
 
----
-
 ## Model
 
-This project uses [`pierreguillou/bert-base-cased-squad-v1.1-portuguese`](https://huggingface.co/pierreguillou/bert-base-cased-squad-v1.1-portuguese), a BERT model fine-tuned for extractive question answering on Portuguese text (SQuAD format).
-
----
-
-## Limitations
-
-- Input is truncated at **512 tokens** — very long documents may lose context.
-- The model performs **extractive QA** only: answers must exist verbatim in the PDF text.
-- Scanned PDFs (image-based) are not supported — text must be selectable.
-
----
+[`pierreguillou/bert-base-cased-squad-v1.1-portuguese`](https://huggingface.co/pierreguillou/bert-base-cased-squad-v1.1-portuguese) - BERT fine-tuned for Portuguese QA.
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE).
+MIT
