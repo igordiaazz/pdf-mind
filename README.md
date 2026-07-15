@@ -43,6 +43,12 @@ pdf-mind/
 - **Database**: PostgreSQL (via Prisma ORM)
 - **Infra**: Docker Compose
 
+## Interface
+
+- Tema **escuro** em todo o site (paleta `zinc`).
+- Logo **pdfmind** no canto superior esquerdo, com o trecho `mind` em azul (`text-blue-500`).
+- Botões e estados de ação mantêm o destaque verde esmeralda.
+
 ## Quick Start
 
 ### 1. Backend Python

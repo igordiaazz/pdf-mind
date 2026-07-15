@@ -26,7 +26,7 @@ export function QuestionForm({
         onChange={(e) => setQuestion(e.target.value)}
         placeholder="Digite sua pergunta sobre o PDF..."
         disabled={loading}
-        className="flex-1 rounded-lg border border-zinc-300 px-4 py-2.5 text-sm outline-none transition-colors focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 disabled:opacity-50"
+        className="flex-1 rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 outline-none transition-colors focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 disabled:opacity-50"
       />
       <button
         type="submit"

@@ -53,7 +53,7 @@ export default function Home() {
         <h1 className="text-3xl font-bold tracking-tight">
           Pergunte sobre seu PDF
         </h1>
-        <p className="mt-2 text-zinc-500">
+        <p className="mt-2 text-zinc-400">
           Faça perguntas em português e obtenha respostas com IA
         </p>
       </div>
@@ -62,13 +62,13 @@ export default function Home() {
         {!file ? (
           <FileUpload onFileSelected={setFile} />
         ) : (
-          <div className="rounded-lg border border-zinc-200 bg-white p-4">
+          <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <svg className="h-5 w-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="h-5 w-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                <span className="text-sm font-medium text-zinc-700">{file.name}</span>
+                <span className="text-sm font-medium text-zinc-200">{file.name}</span>
               </div>
               <button
                 onClick={() => { setFile(null); setAnswer(null); setError(null); }}
@@ -85,20 +85,20 @@ export default function Home() {
         )}
 
         {error && (
-          <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+          <div className="rounded-lg border border-red-900 bg-red-950 p-4 text-sm text-red-300">
             {error}
           </div>
         )}
 
         {answer && (
-          <div className="rounded-lg border border-zinc-200 bg-white p-6">
-            <div className="mb-2 text-xs text-zinc-400">
+          <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-6">
+            <div className="mb-2 text-xs text-zinc-500">
               {answer.filename}
             </div>
-            <p className="mb-3 text-sm font-medium text-zinc-800">
+            <p className="mb-3 text-sm font-medium text-zinc-100">
               Q: {answer.question}
             </p>
-            <p className="text-sm leading-relaxed text-zinc-600">
+            <p className="text-sm leading-relaxed text-zinc-300">
               {answer.answer}
             </p>
           </div>

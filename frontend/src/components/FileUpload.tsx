@@ -28,12 +28,12 @@ export function FileUpload({
       onDrop={handleDrop}
       className={`flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 text-center transition-colors ${
         dragOver
-          ? "border-emerald-500 bg-emerald-50"
-          : "border-zinc-300 bg-white hover:border-zinc-400"
+          ? "border-emerald-500 bg-emerald-950"
+          : "border-zinc-700 bg-zinc-900 hover:border-zinc-600"
       }`}
     >
       <svg
-        className="mb-3 h-8 w-8 text-zinc-400"
+        className="mb-3 h-8 w-8 text-zinc-500"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -45,10 +45,10 @@ export function FileUpload({
           d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
         />
       </svg>
-      <span className="text-sm font-medium text-zinc-600">
+      <span className="text-sm font-medium text-zinc-300">
         Clique ou arraste um PDF aqui
       </span>
-      <span className="mt-1 text-xs text-zinc-400">Apenas arquivos PDF</span>
+      <span className="mt-1 text-xs text-zinc-500">Apenas arquivos PDF</span>
       <input
         type="file"
         accept=".pdf"
