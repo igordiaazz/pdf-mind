@@ -1,107 +1,64 @@
-# PDF Mind - PDF Question Answering with BERT
+# PDF Mind - PDF Question Answering with BERT (CLI)
 
-A Retrieval-Augmented Generation (RAG) system with a modern web interface. Ask questions about any PDF document using a Portuguese-language BERT model.
+A Retrieval-Augmented Generation (RAG) tool that runs entirely on the command
+line. Ask questions about any PDF document using a Portuguese-language BERT
+model. No web server, no frontend.
 
 ## Project Structure
 
 ```
 pdf-mind/
-├── api_rag.py                  # FastAPI REST API (backend Python)
-├── brainRAG.py                 # Interactive CLI
-├── pdfReader.py                # Standalone PDF text extractor
-├── requirements.txt            # Python dependencies
-├── doc.pdf                     # Sample PDF
-├── docker-compose.yml          # PostgreSQL + services
-├── .env.example
-├── frontend/                   # Next.js web app
-│   ├── src/
-│   │   ├── app/
-│   │   │   ├── page.tsx        # Home - upload PDF + perguntar
-│   │   │   ├── layout.tsx      # Root layout com Header
-│   │   │   ├── history/        # Histórico de perguntas
-│   │   │   └── api/
-│   │   │       ├── ask/        # Proxy para API Python
-│   │   │       └── history/    # CRUD histórico (PostgreSQL)
-│   │   ├── components/
-│   │   │   ├── Header.tsx
-│   │   │   ├── FileUpload.tsx
-│   │   │   ├── QuestionForm.tsx
-│   │   │   └── HistoryList.tsx
-│   │   └── lib/
-│   │       ├── prisma.ts
-│   │       └── types.ts
-│   ├── prisma/schema.prisma    # Modelo PostgreSQL
-│   ├── package.json
-│   └── next.config.ts
+├── brainRAG.py      # Interactive CLI: reads a PDF and answers questions
+├── pdfReader.py     # Standalone PDF text extractor
+├── requirements.txt # Python dependencies
 └── README.md
 ```
 
 ## Tech Stack
 
-- **Backend**: Python (FastAPI, HuggingFace BERT, pdfplumber)
-- **Frontend**: Next.js + TypeScript + Tailwind CSS
-- **Database**: PostgreSQL (via Prisma ORM)
-- **Infra**: Docker Compose
-
-## Interface
-
-- Tema **escuro** em todo o site (paleta `zinc`).
-- Logo **pdfmind** no canto superior esquerdo, com o trecho `mind` em azul (`text-blue-500`).
-- Botões e estados de ação mantêm o destaque verde esmeralda.
+- **Python** (PyTorch, HuggingFace Transformers, pdfplumber)
+- **Model**: [`pierreguillou/bert-base-cased-squad-v1.1-portuguese`](https://huggingface.co/pierreguillou/bert-base-cased-squad-v1.1-portuguese) - BERT fine-tuned for Portuguese QA.
 
 ## Quick Start
-
-### 1. Backend Python
 
 ```bash
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-uvicorn api_rag:app --reload
 ```
 
-### 2. Database (PostgreSQL)
+### 1. Ask questions about a PDF (interactive)
+
+Open `brainRAG.py` and set the PDF file name at the top:
+
+```python
+arqPDF = "doc.pdf"
+```
+
+Then run:
 
 ```bash
-# Com Docker:
-docker compose up -d postgres
-
-# Ou use uma instância PostgreSQL local existente
+python brainRAG.py
 ```
 
-### 3. Frontend
+Type your question and press Enter. Type `exit` to quit.
+
+### 2. Extract text from a PDF
+
+Open `pdfReader.py` and set the PDF file name at the top:
+
+```python
+arquivo_pdf = "meu_documento.pdf"
+```
+
+Then run:
 
 ```bash
-cd frontend
-cp ../.env.example .env
-npm install
-npx prisma db push
-npm run dev
+python pdfReader.py
 ```
 
-Acesse `http://localhost:3000`.
-
-### 4. Tudo junto (Docker)
-
-```bash
-docker compose up --build
-```
-
-## API (Python)
-
-### `POST /perguntar`
-
-Upload de PDF + pergunta, retorna resposta da IA.
-
-```bash
-curl -X POST "http://localhost:8000/perguntar" \
-  -F "question=Quem fundou a empresa?" \
-  -F "file=@doc.pdf"
-```
-
-## Model
-
-[`pierreguillou/bert-base-cased-squad-v1.1-portuguese`](https://huggingface.co/pierreguillou/bert-base-cased-squad-v1.1-portuguese) - BERT fine-tuned for Portuguese QA.
+> Observação: `doc.pdf` / `meu_documento.pdf` não existem no repositório.
+> Crie ou baixe um PDF de exemplo antes de rodar os scripts.
 
 ## License
 
