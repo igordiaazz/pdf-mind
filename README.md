@@ -40,6 +40,28 @@ Abra `http://localhost:3000`, envie um PDF e faça perguntas.
 > que encaminha a requisição para `http://localhost:8000/perguntar`. Para mudar a URL
 > do backend, defina `NEXT_PUBLIC_API_URL` (veja `frontend/.env.example`).
 
+## Rodando com Docker
+
+Requer [Docker](https://www.docker.com/) e Docker Compose. Sobe o backend (FastAPI)
+e o frontend (Next.js) juntos em containers:
+
+```bash
+docker compose up --build
+```
+
+- Frontend: `http://localhost:3000`
+- Backend (API): `http://localhost:8000`
+
+Para parar e remover os containers:
+
+```bash
+docker compose down
+```
+
+> O Compose usa `NEXT_PUBLIC_API_URL=http://backend:8000` para que o frontend
+> (rodando no container) alcance o backend pela rede interna do Docker.
+> Na primeira execução o backend baixa o modelo BERT (pode demorar um pouco).
+
 ## Estrutura
 
 ```

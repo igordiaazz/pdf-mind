@@ -1,0 +1,10 @@
+# Backend build context (project root)
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pdf
+.git/
+.kilo/
+frontend/
+.env
