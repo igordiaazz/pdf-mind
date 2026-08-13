@@ -1,65 +1,56 @@
-# PDF Mind - PDF Question Answering with BERT (CLI)
+# PDF Mind - PDF Question Answering with BERT
 
-A Retrieval-Augmented Generation (RAG) tool that runs entirely on the command
-line. Ask questions about any PDF document using a Portuguese-language BERT
-model. No web server, no frontend.
+Uma ferramenta de **Retrieval-Augmented Generation (RAG)** que responde perguntas
+sobre qualquer PDF usando um modelo BERT em português. O projeto combina:
 
-## Project Structure
-
-```
-pdf-mind/
-├── brainRAG.py      # Interactive CLI: reads a PDF and answers questions
-├── pdfReader.py     # Standalone PDF text extractor
-├── requirements.txt # Python dependencies
-└── README.md
-```
+- Um **backend em Python (FastAPI)** que carrega o modelo BERT e processa os PDFs.
+- Um **frontend em React/Next.js + Tailwind CSS** (modo escuro) para enviar o PDF
+  e fazer perguntas pela interface web.
 
 ## Tech Stack
 
-- **Python** (PyTorch, HuggingFace Transformers, pdfplumber)
-- **Model**: [`pierreguillou/bert-base-cased-squad-v1.1-portuguese`](https://huggingface.co/pierreguillou/bert-base-cased-squad-v1.1-portuguese) - BERT fine-tuned for Portuguese QA.
+- **Backend**: Python, PyTorch, HuggingFace Transformers, pdfplumber, FastAPI
+- **Modelo**: [`pierreguillou/bert-base-cased-squad-v1.1-portuguese`](https://huggingface.co/pierreguillou/bert-base-cased-squad-v1.1-portuguese)
+- **Frontend**: Next.js (App Router), React 19, TypeScript, Tailwind CSS v4
 
-## Quick Start
+## Como rodar
+
+### 1. Backend (API Python)
 
 ```bash
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
+uvicorn api_rag:app --reload --port 8000
 ```
 
-### 1. Ask questions about a PDF (interactive)
+A API fica disponível em `http://localhost:8000` (endpoint `POST /perguntar`).
 
-Open `brainRAG.py` and set the PDF file name at the top:
-
-```python
-arqPDF = "doc.pdf"
-```
-
-Then run:
+### 2. Frontend (Next.js)
 
 ```bash
-python brainRAG.py
+cd frontend
+npm install
+npm run dev
 ```
 
-Type your question and press Enter. Type `exit` to quit.
+Abra `http://localhost:3000`, envie um PDF e faça perguntas.
 
-### 2. Extract text from a PDF
+> O frontend se comunica com o backend via proxy (`frontend/src/app/api/ask/route.ts`),
+> que encaminha a requisição para `http://localhost:8000/perguntar`. Para mudar a URL
+> do backend, defina `NEXT_PUBLIC_API_URL` (veja `frontend/.env.example`).
 
-Open `pdfReader.py` and set the PDF file name at the top:
+## Estrutura
 
-```python
-arquivo_pdf = "meu_documento.pdf"
+```
+pdf-mind/
+├── api_rag.py          # Backend FastAPI (modelo BERT + leitura de PDF)
+├── brainRAG.py         # CLI original (modo interativo via terminal)
+├── pdfReader.py        # Extrator de texto de PDF (standalone)
+├── requirements.txt    # Dependências Python
+└── frontend/           # Aplicação Next.js (React + Tailwind, dark mode)
 ```
 
-Then run:
-
-```bash
-python pdfReader.py
-```
-
-> Observação: `doc.pdf` / `meu_documento.pdf` não existem no repositório.
-> Crie ou baixe um PDF de exemplo antes de rodar os scripts.
-
-## License
+## Licença
 
 MIT
