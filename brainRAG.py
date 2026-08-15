@@ -1,58 +1,84 @@
+import argparse
 import pdfplumber
 import torch
 from transformers import AutoTokenizer, AutoModelForQuestionAnswering
 
 
-
-arqPDF = "doc.pdf"
-arqTXT = ""
-
-print(f"Reading PDF '{arqPDF}' (just some seconds...)")
-
-
-try:
-    with pdfplumber.open(arqPDF) as pdf:
-        for page in pdf.pages:
-            arqTXT += page.extract_text() + "\n"
-            print("PDF has been read sucessfully!\n")
-
-except Exception as e:
-    print(f"Could not read the PDF: {e}")
-    exit()
+def ler_pdf(caminho: str) -> str:
+    print(f"Lendo o PDF '{caminho}' (aguarde alguns segundos)...")
+    texto = ""
+    with pdfplumber.open(caminho) as pdf:
+        for pagina in pdf.pages:
+            texto += (pagina.extract_text() or "") + "\n"
+    if not texto.strip():
+        raise ValueError("O PDF não contém texto extraível.")
+    print("PDF lido com sucesso!")
+    return texto
 
 
-print("Initializing BERT...")
-nome_modelo = "pierreguillou/bert-base-cased-squad-v1.1-portuguese"
-tokenizer = AutoTokenizer.from_pretrained(nome_modelo)
-modelo = AutoModelForQuestionAnswering.from_pretrained(nome_modelo)
+def carregar_modelo():
+    print("Carregando modelo BERT (português)...")
+    nome_modelo = "pierreguillou/bert-base-cased-squad-v1.1-portuguese"
+    tokenizer = AutoTokenizer.from_pretrained(nome_modelo)
+    modelo = AutoModelForQuestionAnswering.from_pretrained(nome_modelo)
+    print("IA pronta!")
+    return tokenizer, modelo
 
 
-print("IA Ready!")
-print("Ask anything about the PDF content (or type 'exit'):")
-
-
-while True:
-    pergunta = input("What is your question?: ")
-    if pergunta == "exit":
-        break
-
-
-    inputs = tokenizer(pergunta, arqTXT, return_tensors="pt", truncation=True, max_length=512)
+def responder(pergunta: str, texto: str, tokenizer, modelo) -> str:
+    inputs = tokenizer(
+        pergunta,
+        texto,
+        return_tensors="pt",
+        truncation=True,
+        max_length=512,
+    )
 
     with torch.no_grad():
         outputs = modelo(**inputs)
 
+    inicio = torch.argmax(outputs.start_logits)
+    fim = torch.argmax(outputs.end_logits) + 1
 
-    inicioRESP = torch.argmax(outputs.start_logits)
-    fimRESP = torch.argmax(outputs.end_logits) + 1
+    tokens_resposta = inputs["input_ids"][0][inicio:fim]
+    resposta = tokenizer.convert_tokens_to_string(
+        tokenizer.convert_ids_to_tokens(tokens_resposta)
+    )
+
+    if not resposta.strip() or "[CLS]" in resposta:
+        return "Não encontrei essa informação no documento."
+    return resposta
 
 
-    tokens_resposta = inputs["input_ids"][0][inicioRESP:fimRESP]
-    resposta_final = tokenizer.convert_tokens_to_string(tokenizer.convert_ids_to_tokens(tokens_resposta))
+def main():
+    parser = argparse.ArgumentParser(
+        description="PDF Mind - responde perguntas sobre um PDF usando BERT (português)."
+    )
+    parser.add_argument(
+        "pdf",
+        nargs="?",
+        default="doc.pdf",
+        help="Caminho do PDF a ser analisado (padrão: doc.pdf).",
+    )
+    args = parser.parse_args()
 
-    if not resposta_final.strip() or "[CLS]" in resposta_final:
-        print("AI: Sorry, did not found that information.")
-    else:
-        print(f"AI: '{resposta_final}'")
+    try:
+        texto = ler_pdf(args.pdf)
+    except Exception as e:
+        print(f"Não foi possível ler o PDF: {e}")
+        return
+
+    tokenizer, modelo = carregar_modelo()
+
+    print("\nPergunte qualquer coisa sobre o conteúdo do PDF (ou digite 'sair'):")
+    while True:
+        pergunta = input("Sua pergunta: ").strip()
+        if pergunta.lower() in ("sair", "exit", "q"):
+            break
+        if not pergunta:
+            continue
+        print(f"IA: '{responder(pergunta, texto, tokenizer, modelo)}'\n")
 
 
+if __name__ == "__main__":
+    main()
